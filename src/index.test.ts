@@ -20,6 +20,26 @@ describe("generateUnion", () => {
     );
   });
 
+  it("uses the given discriminant if provided", () => {
+    const payloads = [
+      { value: "val", type: "first" },
+      { value: "tough", type: "second" },
+    ];
+
+    const types = generateUnion(payloads, "type");
+
+    expect(types).toEqual(
+      prettier.format(
+        `
+    type Type0 = { value: string, type: "first" };
+    type Type1 = { value: string, type: "second" };
+    type Union = Type0 | Type1;
+    `,
+        { parser: "typescript" }
+      )
+    );
+  });
+
   it("generates nested types", () => {
     const type = generateUnion([
       { type: "first", value: 2, data: { test: 1, value: "test" } },

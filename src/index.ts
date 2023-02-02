@@ -18,14 +18,14 @@ function toType(entry: Entry, discriminant?: string): Type {
   }, {});
 }
 
-function findCommonProperties(entries: Entry[]) {
+function findDiscriminant(entries: Entry[]): string {
   // we just need to check the properties of the first object against all the other objects
   const properties = Object.keys(entries[0]);
   return properties.filter((prop) => {
     return entries.every((entry) =>
       Object.keys(entry).some((key) => key === prop)
     );
-  }, []);
+  }, [])[0];
 }
 
 function createTypeScriptDef(type: Type): string {
@@ -57,8 +57,8 @@ function toTypeScript(types: Type[]) {
   return prettier.format(rawTypescript, { parser: "typescript" });
 }
 
-export function generateUnion(entities: Entry[]) {
-  const [discriminant] = findCommonProperties(entities);
-  const types = entities.map((entry) => toType(entry, discriminant));
+export function generateUnion(entities: Entry[], discriminant?: string) {
+  const useDiscriminant = discriminant ?? findDiscriminant(entities);
+  const types = entities.map((entry) => toType(entry, useDiscriminant));
   return toTypeScript(types);
 }
