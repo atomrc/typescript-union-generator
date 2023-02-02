@@ -1,5 +1,5 @@
-import { generateUnion } from ".";
-import prettier from "prettier";
+import { generateUnion } from "./index";
+import { format } from "prettier";
 
 describe("generateUnion", () => {
   it("generates raw types if no discriminant is found", () => {
@@ -9,7 +9,7 @@ describe("generateUnion", () => {
     ]);
 
     expect(type).toEqual(
-      prettier.format(
+      format(
         `
     type Type0 = { type: string, value: number};
     type Type1 = { name: string, val: number};
@@ -29,7 +29,7 @@ describe("generateUnion", () => {
     const types = generateUnion(payloads, "type");
 
     expect(types).toEqual(
-      prettier.format(
+      format(
         `
     type Type0 = { value: string, type: "first" };
     type Type1 = { value: string, type: "second" };
@@ -46,7 +46,7 @@ describe("generateUnion", () => {
     ]);
 
     expect(type).toEqual(
-      prettier.format(
+      format(
         `
     type Type0 = {
         type: "first",
@@ -68,7 +68,7 @@ describe("generateUnion", () => {
     ]);
 
     expect(type).toEqual(
-      prettier.format(
+      format(
         `
     type Type0 = { type: "first", value: number};
     type Type1 = { type: "second" };

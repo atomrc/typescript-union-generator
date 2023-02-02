@@ -1,4 +1,4 @@
-import prettier from "prettier";
+import { format } from "prettier";
 
 type Entry = Object;
 type TypeEntry = { $$type: string | number | Type };
@@ -54,7 +54,7 @@ function toTypeScript(types: Type[]) {
     type Union = ${typeDefs.map(({ name }) => `${name}`).join("|")}
   `;
 
-  return prettier.format(rawTypescript, { parser: "typescript" });
+  return format(rawTypescript, { parser: "typescript" });
 }
 
 export function generateUnion(entities: Entry[], discriminant?: string) {
