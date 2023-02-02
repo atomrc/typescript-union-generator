@@ -1,7 +1,62 @@
 import { generateUnion } from ".";
+import prettier from "prettier";
 
 describe("generateUnion", () => {
-  it("generates types for a single entry", () => {
-    const type = generateUnion([{ type: "element", value: "hey" }]);
+  it("generates raw types if no discriminant is found", () => {
+    const type = generateUnion([
+      { type: "first", value: 2 },
+      { name: "hello", val: 1 },
+    ]);
+
+    expect(type).toEqual(
+      prettier.format(
+        `
+    type Type0 = { type: string, value: number};
+    type Type1 = { name: string, val: number};
+    type Union = Type0 | Type1;
+    `,
+        { parser: "typescript" }
+      )
+    );
+  });
+
+  it("generates nested types", () => {
+    const type = generateUnion([
+      { type: "first", value: 2, data: { test: 1, value: "test" } },
+    ]);
+
+    expect(type).toEqual(
+      prettier.format(
+        `
+    type Type0 = {
+        type: "first",
+        value: number,
+        data: { test: number, value: string }
+    };
+    type Union = Type0;
+    `,
+        { parser: "typescript" }
+      )
+    );
+  });
+
+  it("keeps the discriminant's value", () => {
+    const type = generateUnion([
+      { type: "first", value: 1 },
+      { type: "second" },
+      { type: 3 },
+    ]);
+
+    expect(type).toEqual(
+      prettier.format(
+        `
+    type Type0 = { type: "first", value: number};
+    type Type1 = { type: "second" };
+    type Type2 = { type: 3 };
+    type Union = Type0 | Type1 | Type2;
+    `,
+        { parser: "typescript" }
+      )
+    );
   });
 });
