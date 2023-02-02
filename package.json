@@ -7,6 +7,7 @@
   "types": "lib/types/index.d.ts",
   "scripts": {
     "test": "jest",
+    "prepare": "pnpm build",
     "build": "swc -C module.type=es6 src/*.ts -d ./lib/esm & swc -C module.type=commonjs src/*.ts -d ./lib/cjs & tsc --emitDeclarationOnly --outDir ./lib/types"
   },
   "keywords": [],

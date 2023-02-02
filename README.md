@@ -19,6 +19,12 @@ type Type1 = { name: string; val: number };
 type Union = Type0 | Type1;
 ```
 
+## Installation
+
+```
+npm install tsug
+```
+
 ## Usage
 
 To generate a `Union Type` from a bunch of payloads, you can run
