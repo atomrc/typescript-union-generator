@@ -6,16 +6,16 @@ Transform this:
 
 ```js
 [
-  { type: "first", value: 2 },
-  { name: "hello", val: 1 },
+  { type: "first", value: "two" },
+  { type: "second", val: 1 },
 ];
 ```
 
 into this:
 
 ```ts
-type Type0 = { type: string; value: number };
-type Type1 = { name: string; val: number };
+type Type0 = { type: "first"; value: string };
+type Type1 = { type: "second"; val: number };
 type Union = Type0 | Type1;
 ```
 
