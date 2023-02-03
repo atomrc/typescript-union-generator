@@ -9,6 +9,7 @@
   "scripts": {
     "test": "jest",
     "prepare": "pnpm build",
+    "gendoc": "mkdir -p public && cp docs/index.html public/index.html && esbuild --bundle docs/index.ts --outfile=public/index.js",
     "build": "tsup src/index.ts --target es2017 --format esm,cjs --dts -d=./lib"
   },
   "keywords": [],

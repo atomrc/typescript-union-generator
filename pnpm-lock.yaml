@@ -10,15 +10,13 @@ specifiers:
   tsup: ^6.5.0
   typescript: ^4.9.5
 
-dependencies:
-  prettier: 2.8.3
-
 devDependencies:
   '@types/jest': 29.4.0
   '@types/prettier': 2.7.2
   esbuild: 0.17.5
   esbuild-jest: 0.5.0_esbuild@0.17.5
   jest: 29.4.1
+  prettier: 2.8.3
   tsup: 6.5.0_typescript@4.9.5
   typescript: 4.9.5
 
@@ -3382,7 +3380,7 @@ packages:
     resolution: {integrity: sha512-tJ/oJ4amDihPoufT5sM0Z1SKEuKay8LfVAMlbbhnnkvt6BUserZylqo2PN+p9KeljLr0OHa2rXHU1T8reeoTrw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
-    dev: false
+    dev: true
 
   /pretty-format/29.4.1:
     resolution: {integrity: sha512-dt/Z761JUVsrIKaY215o1xQJBGlSmTx/h4cSqXqjHLnU1+Kt+mavVE7UgqJJO5ukx5HjSswHfmXz4LjS2oIJfg==}
