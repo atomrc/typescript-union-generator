@@ -1,6 +1,10 @@
 import { generateUnion } from "./index";
 import { format } from "prettier";
 
+function f(code: string) {
+  return format(code, { parser: "typescript" });
+}
+
 describe("generateUnion", () => {
   it("generates raw types if no discriminant is found", () => {
     const type = generateUnion([
@@ -8,14 +12,13 @@ describe("generateUnion", () => {
       { name: "hello", val: 1 },
     ]);
 
-    expect(type).toEqual(
-      format(
+    expect(f(type)).toEqual(
+      f(
         `
     type Type0 = { type: string, value: number};
     type Type1 = { name: string, val: number};
     type Union = Type0 | Type1;
-    `,
-        { parser: "typescript" }
+    `
       )
     );
   });
@@ -28,14 +31,13 @@ describe("generateUnion", () => {
 
     const types = generateUnion(payloads, "type");
 
-    expect(types).toEqual(
-      format(
+    expect(f(types)).toEqual(
+      f(
         `
     type Type0 = { value: string, type: "first" };
     type Type1 = { value: string, type: "second" };
     type Union = Type0 | Type1;
-    `,
-        { parser: "typescript" }
+    `
       )
     );
   });
@@ -45,8 +47,8 @@ describe("generateUnion", () => {
       { type: "first", value: 2, data: { test: 1, value: "test" } },
     ]);
 
-    expect(type).toEqual(
-      format(
+    expect(f(type)).toEqual(
+      f(
         `
     type Type0 = {
         type: "first",
@@ -55,7 +57,6 @@ describe("generateUnion", () => {
     };
     type Union = Type0;
     `,
-        { parser: "typescript" }
       )
     );
   });
@@ -67,15 +68,14 @@ describe("generateUnion", () => {
       { type: 3 },
     ]);
 
-    expect(type).toEqual(
-      format(
+    expect(f(type)).toEqual(
+      f(
         `
     type Type0 = { type: "first", value: number};
     type Type1 = { type: "second" };
     type Type2 = { type: 3 };
     type Union = Type0 | Type1 | Type2;
     `,
-        { parser: "typescript" }
       )
     );
   });
