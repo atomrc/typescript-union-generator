@@ -56,7 +56,7 @@ describe("generateUnion", () => {
         data: { test: number, value: string }
     };
     type Union = Type0;
-    `,
+    `
       )
     );
   });
@@ -75,8 +75,15 @@ describe("generateUnion", () => {
     type Type1 = { type: "second" };
     type Type2 = { type: 3 };
     type Union = Type0 | Type1 | Type2;
-    `,
+    `
       )
     );
   });
+
+  it.each([[{}], ["test"], [1]])(
+    "only accepts array of JSON objects (%s)",
+    (payload: any) => {
+      expect(() => generateUnion(payload)).toThrow("must be an array");
+    }
+  );
 });

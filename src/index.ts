@@ -56,6 +56,9 @@ function toTypeScript(types: Type[]) {
 }
 
 export function generateUnion(entities: Entry[], discriminant?: string) {
+  if (!Array.isArray(entities)) {
+    throw new Error("Entries must be an array of JSON payloads");
+  }
   const useDiscriminant = discriminant ?? findDiscriminant(entities);
   const types = entities.map((entry) => toType(entry, useDiscriminant));
   return toTypeScript(types);
