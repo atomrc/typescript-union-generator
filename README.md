@@ -1,8 +1,8 @@
 # TypeScript Union Type Generator
 
-Generates TypeScript union types straight from raw payloads.
+Generates TypeScript union types straight from raw payloads ([live demo](https://blog.atomrc.dev/typescript-union-generator/)).
 
-Transform this:
+Transforms this:
 
 ```js
 [
@@ -11,7 +11,7 @@ Transform this:
 ];
 ```
 
-into this:
+into:
 
 ```ts
 type Type0 = { type: "first"; value: string };
