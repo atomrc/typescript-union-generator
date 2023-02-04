@@ -5,5 +5,5 @@
     "strict": true,
     "moduleResolution": "node"
   },
-  "files": ["src/index.ts"],
+  "files": ["src/index.ts", "src/renderer.ts", "src/generator.ts"],
 }
