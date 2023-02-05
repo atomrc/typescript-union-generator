@@ -1,6 +1,6 @@
-import { Type, Types } from "./types";
+import { TypeDef, Types } from "./types";
 
-function createTypeScriptDef(type: Type): string {
+function createTypeScriptDef(type: TypeDef): string {
   const properties = Object.entries(type)
     .map(([key, value]) => {
       const type =
@@ -13,15 +13,35 @@ function createTypeScriptDef(type: Type): string {
     .join(";");
   return properties;
 }
-export function renderTypeScript(types: Types) {
+export function renderTypeScript({
+  base,
+  types,
+}: {
+  base?: TypeDef;
+  types: Types;
+}) {
   const typeDefs = Object.entries(types).map(([name, type]) => ({
     name,
-    props: createTypeScriptDef(type),
+    extend: base ? "Base" : undefined,
+    props: createTypeScriptDef(type.def),
   }));
 
+  const baseType = base
+    ? [
+        {
+          name: "Base",
+          extend: undefined,
+          props: createTypeScriptDef(base),
+        },
+      ]
+    : [];
+
   const rawTypescript = `
-    ${typeDefs
-      .map(({ name, props }) => `type ${name} = { ${props} }`)
+    ${[...baseType, ...typeDefs]
+      .map(
+        ({ name, extend, props }) =>
+          `type ${name} = ${extend ? `${extend} & ` : ""}{ ${props} }`
+      )
       .join(";")}
     type Union = ${typeDefs.map(({ name }) => `${name}`).join("|")}
   `;

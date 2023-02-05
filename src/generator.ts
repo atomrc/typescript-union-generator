@@ -1,12 +1,20 @@
-import { TypeEntry, Entry, Type, Types, NamedEntries } from "./types";
+import { TypeEntry, TypeDef, Entry, NamedEntries, Types } from "./types";
 
 export type GeneratorOptions = {
   discriminant?: string;
+  extractCommon?: boolean;
 };
 
-function toType(entry: Entry, discriminant?: string): Type {
-  return Object.entries(entry).reduce<Type>((types, [key, value]) => {
+function toType(
+  entry: Entry,
+  excludeProps?: string[],
+  discriminant?: string
+): TypeDef {
+  return Object.entries(entry).reduce<TypeDef>((types, [key, value]) => {
     let type: TypeEntry;
+    if (excludeProps?.includes(key)) {
+      return types;
+    }
     if (typeof value === "object" && value) {
       type = { $$type: toType(value as Entry) };
     } else {
@@ -18,28 +26,76 @@ function toType(entry: Entry, discriminant?: string): Type {
   }, {});
 }
 
-function generateTypes(entries: NamedEntries, discriminant?: string): Types {
-  return Object.entries(entries).reduce<Types>(
-    (acc, [name, type]) => ({ ...acc, [name]: toType(type, discriminant) }),
-    {}
+function findCommonProperties(
+  payloads: NamedEntries
+): { type: string; name: string }[] {
+  // we just need to check the properties of the first object against all the other objects
+  const entries = Object.values(payloads);
+  const properties = Object.keys(entries[0]);
+  return (
+    properties
+      .map((property) => ({
+        name: property,
+        values: entries
+          .map((entry) => entry[property])
+          .filter((value) => value !== undefined),
+      }))
+      // We filter all the properties that have the same number of values than the number of entries
+      .filter((prop) => prop.values.length === entries.length)
+      .map((prop) => ({ name: prop.name, type: typeof prop.values[0] }))
   );
 }
 
-function findDiscriminant(entries: NamedEntries): string {
-  // we just need to check the properties of the first object against all the other objects
-  const entryList = Object.values(entries);
-  const properties = Object.keys(entryList[0]);
-  return properties.filter((prop) => {
-    return entryList.every((entry) =>
-      Object.keys(entry).some((key) => key === prop)
-    );
-  }, [])[0];
+function generateTypes(
+  entries: NamedEntries,
+  baseType?: TypeDef,
+  discriminant?: string
+): Types {
+  const types = Object.entries(entries).reduce<Types>(
+    (acc, [name, type]) => ({
+      ...acc,
+      [name]: {
+        def: toType(
+          type,
+          baseType ? Object.keys(baseType) : undefined,
+          discriminant
+        ),
+        extends: baseType ? "Base" : undefined,
+      },
+    }),
+    {}
+  );
+
+  return types;
+}
+
+function createBaseType(properties: { name: string; type: string }[]): TypeDef | undefined {
+  if (properties.length === 0) {
+    return undefined;
+  }
+  return properties.reduce<TypeDef>(
+    (acc, property) => ({
+      ...acc,
+      [property.name]: { $$type: property.type },
+    }),
+    {}
+  );
 }
 
 export function generate(
   entries: NamedEntries,
   options: GeneratorOptions = {}
 ) {
-  const useDiscriminant = options.discriminant ?? findDiscriminant(entries);
-  return generateTypes(entries, useDiscriminant);
+  const commonProperties = findCommonProperties(entries);
+  const useDiscriminant = options.discriminant ?? commonProperties[0]?.name;
+  const baseType = options.extractCommon
+    ? createBaseType(
+        commonProperties.filter(({ name }) => name !== useDiscriminant)
+      )
+    : undefined;
+
+  return {
+    base: baseType,
+    types: generateTypes(entries, baseType, useDiscriminant),
+  };
 }
