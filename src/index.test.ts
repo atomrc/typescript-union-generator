@@ -111,15 +111,16 @@ describe("generateUnion", () => {
         Second: { type: "second", value: 2, common: "two", second: "second" },
         Third: { type: 3, common: "third" },
       },
-      { extractCommons: true }
+      { extractCommon: true }
     );
 
-    expect(f(type)).toEqual(`
+    expect(f(type)).toEqual(f(`
       type Base = {common: string};
       type First = Base & {type: "first", value: number, first: number}
-      type Second = Base & {type: "second", value: number, second: number}
-      type Third = Base & {type: number}
-    `);
+      type Second = Base & {type: "second", value: number, second: string}
+      type Third = Base & {type: 3}
+      type Union = First | Second | Third
+    `));
   });
 
   it.each([[{}], ["test"], [1]])(
