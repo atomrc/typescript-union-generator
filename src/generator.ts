@@ -1,19 +1,14 @@
-import { TypeEntry, Type, Types } from "./types";
+import { TypeEntry, Entry, Type, Types, NamedEntries } from "./types";
 
-export type Entry = Object;
-export type NamedEntries = Record<string, Entry>;
-
-const isNamedEntries = (obj: unknown): obj is NamedEntries =>
-  !!obj &&
-  typeof obj === "object" &&
-  Object.keys(obj).length > 0 &&
-  !Array.isArray(obj);
+export type GeneratorOptions = {
+  discriminant?: string;
+};
 
 function toType(entry: Entry, discriminant?: string): Type {
   return Object.entries(entry).reduce<Type>((types, [key, value]) => {
     let type: TypeEntry;
     if (typeof value === "object" && value) {
-      type = { $$type: toType(value) };
+      type = { $$type: toType(value as Entry) };
     } else {
       type = {
         $$type: key === discriminant ? JSON.stringify(value) : typeof value,
@@ -41,23 +36,10 @@ function findDiscriminant(entries: NamedEntries): string {
   }, [])[0];
 }
 
-function nameEntries(entries: Entry[] | NamedEntries) {
-  return isNamedEntries(entries)
-    ? entries
-    : entries.reduce<NamedEntries>(
-        (acc, entry, index) => ({ ...acc, [`Type${index}`]: entry }),
-        {}
-      );
-}
-
 export function generate(
-  entries: Entry[] | NamedEntries,
-  discriminant?: string
+  entries: NamedEntries,
+  options: GeneratorOptions = {}
 ) {
-  if (!Array.isArray(entries) && !isNamedEntries(entries)) {
-    throw new Error("Entries must be an array of JSON payloads or an object");
-  }
-  const namedEntries = nameEntries(entries);
-  const useDiscriminant = discriminant ?? findDiscriminant(namedEntries);
-  return generateTypes(namedEntries, useDiscriminant);
+  const useDiscriminant = options.discriminant ?? findDiscriminant(entries);
+  return generateTypes(entries, useDiscriminant);
 }

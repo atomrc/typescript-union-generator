@@ -29,7 +29,7 @@ describe("generateUnion", () => {
       { value: "tough", type: "second" },
     ];
 
-    const types = generateUnion(payloads, "type");
+    const types = generateUnion(payloads, { discriminant: "type" });
 
     expect(f(types)).toEqual(
       f(

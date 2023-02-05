@@ -60,7 +60,7 @@ const payloads = {
   Second: { value: "tough", type: "second" },
 };
 
-const types = generateUnion(payloads, "type");
+const types = generateUnion(payloads, { discriminant: "type" });
 /*
 type First = { value: string, type: "first" };
 type Second = { value: string, type: "second" };

@@ -1,10 +1,10 @@
 import { renderTypeScript } from "./renderer";
-import { generate, Entry, NamedEntries } from "./generator";
+import { generate, GeneratorOptions } from "./generator";
+import { Input, parseInput } from "./inputParser";
 
-export function generateUnion(
-  entries: Entry[] | NamedEntries,
-  discriminant?: string
-) {
-  const types = generate(entries, discriminant);
+export function generateUnion(payloads: Input, options?: GeneratorOptions) {
+  const entries = parseInput(payloads);
+  const types = generate(entries, options);
+
   return renderTypeScript(types);
 }
