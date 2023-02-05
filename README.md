@@ -67,3 +67,24 @@ type Second = { value: string, type: "second" };
 type Union = First | Second;
 */
 ```
+
+## Extract common properties to a Base type
+
+You might want to extact properties that are common between all the types. In this case you can pass `{ extractCommon: true }` option to the `generateUnion` function
+
+```js
+const payloads = {
+  First: { type: "a", value: "first" },
+  Second: { type: "b", value: "second" },
+  Third: { type: "c", value: "third" },
+};
+
+const types = generateUnion(payload, { extractCommon: true });
+/*
+type Base = { value: string };
+type First = Base & { type: "a" };
+type Second = Base & { type: "b" };
+type Third = Base & { type: "c" };
+type Union = First | Second | Third;
+*/
+```
