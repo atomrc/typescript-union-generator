@@ -80,6 +80,25 @@ describe("generateUnion", () => {
     );
   });
 
+  it("generates named types", () => {
+    const type = generateUnion({
+      First: { type: "first", value: 1 },
+      Second: { type: "second" },
+      Third: { type: 3 },
+    });
+
+    expect(f(type)).toEqual(
+      f(
+        `
+    type First = { type: "first", value: number};
+    type Second = { type: "second" };
+    type Third = { type: 3 };
+    type Union = First | Second | Third;
+    `
+      )
+    );
+  });
+
   it.each([[{}], ["test"], [1]])(
     "only accepts array of JSON objects (%s)",
     (payload: any) => {
