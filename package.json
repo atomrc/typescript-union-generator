@@ -9,6 +9,7 @@
   "module": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "test": "jest",
     "prepare": "pnpm build",
     "gendoc": "mkdir -p public && cp docs/index.html public/index.html && esbuild --target=es2020 --bundle docs/application.ts --outfile=public/index.js",
