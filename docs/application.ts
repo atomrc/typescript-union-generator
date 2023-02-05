@@ -25,7 +25,7 @@ input?.addEventListener(
     }
     if (data) {
       try {
-        result.innerText = format(generateUnion(data), {
+        result.innerText = format(generateUnion(data, {extractCommon: true}), {
           parser: "typescript",
           plugins: [tsParser],
         });

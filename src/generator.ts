@@ -69,7 +69,10 @@ function generateTypes(
   return types;
 }
 
-function createBaseType(properties: { name: string; type: string }[]): TypeDef {
+function createBaseType(properties: { name: string; type: string }[]): TypeDef | undefined {
+  if (properties.length === 0) {
+    return undefined;
+  }
   return properties.reduce<TypeDef>(
     (acc, property) => ({
       ...acc,
