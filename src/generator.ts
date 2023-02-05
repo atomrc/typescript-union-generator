@@ -1,7 +1,8 @@
-import { TypeEntry, Entry, Type, Types, NamedEntries } from "./types";
+import { TypeEntry, Type, Entry, NamedEntries, Types } from "./types";
 
 export type GeneratorOptions = {
   discriminant?: string;
+  extactCommons?: boolean;
 };
 
 function toType(entry: Entry, discriminant?: string): Type {
@@ -18,6 +19,26 @@ function toType(entry: Entry, discriminant?: string): Type {
   }, {});
 }
 
+function findCommonProperties(
+  payloads: NamedEntries
+): { type: string; name: string }[] {
+  // we just need to check the properties of the first object against all the other objects
+  const entries = Object.values(payloads);
+  const properties = Object.keys(entries[0]);
+  return (
+    properties
+      .map((property) => ({
+        name: property,
+        values: entries
+          .map((entry) => entry[property])
+          .filter((value) => value !== undefined),
+      }))
+      // We filter all the properties that have the same number of values than the number of entries
+      .filter((prop) => prop.values.length === entries.length)
+      .map((prop) => ({ name: prop.name, type: typeof prop.values[0] }))
+  );
+}
+
 function generateTypes(entries: NamedEntries, discriminant?: string): Types {
   return Object.entries(entries).reduce<Types>(
     (acc, [name, type]) => ({ ...acc, [name]: toType(type, discriminant) }),
@@ -25,21 +46,11 @@ function generateTypes(entries: NamedEntries, discriminant?: string): Types {
   );
 }
 
-function findDiscriminant(entries: NamedEntries): string {
-  // we just need to check the properties of the first object against all the other objects
-  const entryList = Object.values(entries);
-  const properties = Object.keys(entryList[0]);
-  return properties.filter((prop) => {
-    return entryList.every((entry) =>
-      Object.keys(entry).some((key) => key === prop)
-    );
-  }, [])[0];
-}
-
 export function generate(
   entries: NamedEntries,
   options: GeneratorOptions = {}
 ) {
-  const useDiscriminant = options.discriminant ?? findDiscriminant(entries);
+  const commonProperties = findCommonProperties(entries);
+  const useDiscriminant = options.discriminant ?? commonProperties[0].name;
   return generateTypes(entries, useDiscriminant);
 }

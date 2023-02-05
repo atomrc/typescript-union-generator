@@ -104,6 +104,24 @@ describe("generateUnion", () => {
     );
   });
 
+  it("extract common properties that have similar type", () => {
+    const type = generateUnion(
+      {
+        First: { type: "first", value: 1, common: "one", first: 1 },
+        Second: { type: "second", value: 2, common: "two", second: "second" },
+        Third: { type: 3, common: "third" },
+      },
+      { extractCommons: true }
+    );
+
+    expect(f(type)).toEqual(`
+      type Base = {common: string};
+      type First = Base & {type: "first", value: number, first: number}
+      type Second = Base & {type: "second", value: number, second: number}
+      type Third = Base & {type: number}
+    `);
+  });
+
   it.each([[{}], ["test"], [1]])(
     "only accepts array of JSON objects (%s)",
     (payload: any) => {
