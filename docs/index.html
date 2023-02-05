@@ -1,5 +1,6 @@
 <h1>TypeScript Union Type Generator</h1>
-<a href="https://github.com/atomrc/typescript-union-generator"><img
+<a href="https://github.com/atomrc/typescript-union-generator"
+  ><img
     decoding="async"
     loading="lazy"
     style="position: absolute; top: 0; right: 0"
@@ -16,5 +17,16 @@
   cols="80"
   style="font-family: monospace"
 ></textarea>
+<br />
+<label>
+  Discriminant (if not provided will be automatically determined)
+  <br>
+  <input id="discriminant" type="text" />
+</label>
+<br />
+<label>
+  <input id="extract" type="checkbox" name="extractcommon" />
+  Extract common properties
+</label>
 <pre id="result"></pre>
 <script src="./index.js"></script>
