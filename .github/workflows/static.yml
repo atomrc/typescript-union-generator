@@ -43,7 +43,7 @@ jobs:
         run: pnpm install
 
       - name: Build docs
-        run: pnpm run gendoc
+        run: pnpm run gendoc --minify
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
