@@ -80,6 +80,30 @@ describe("generateUnion", () => {
     );
   });
 
+  it("generates named types", () => {
+    const type = generateUnion({
+      UserCreate: {
+        type: "user-create",
+        id: 12,
+        username: "atomrc",
+      },
+      UserDelete: {
+        type: "user-delete",
+        id: 12,
+      },
+    });
+
+    expect(f(type)).toEqual(
+      f(
+        `
+    type UserCreate = { type: "user-create", id: number, username: string};
+    type UserDelete = { type: "user-delete", id: number };
+    type Union = UserCreate | UserDelete;
+    `
+      )
+    );
+  });
+
   it.each([[{}], ["test"], [1]])(
     "only accepts array of JSON objects (%s)",
     (payload: any) => {

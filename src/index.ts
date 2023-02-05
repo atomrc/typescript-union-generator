@@ -1,9 +1,10 @@
 import { renderTypeScript } from "./renderer";
-import { generate } from "./generator";
+import { generate, Entry, NamedEntries } from "./generator";
 
-export type Entry = Object;
-
-export function generateUnion(entries: Object[], discriminant?: string) {
+export function generateUnion(
+  entries: Entry[] | NamedEntries,
+  discriminant?: string
+) {
   const types = generate(entries, discriminant);
   return renderTypeScript(types);
 }
