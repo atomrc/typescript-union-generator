@@ -1,7 +1,17 @@
 import { TypeEntry, TypeDef, Entry, NamedEntries, Types } from "./types";
 
 export type GeneratorOptions = {
+  /**
+   * Will use this property as the discriminant.
+   * If not provided, will fallback to using the first property that is common to all payloads.
+   * If not discriminant could be found (or the discriminant given doesn't match any properties) will only generate a non-discriminated union
+   */
   discriminant?: string;
+
+  /**
+   * Will extract all the properties that are common to all the payload in a single Base type.
+   * Only the discriminant will not be put into this Base type
+   */
   extractCommon?: boolean;
 };
 
@@ -69,7 +79,9 @@ function generateTypes(
   return types;
 }
 
-function createBaseType(properties: { name: string; type: string }[]): TypeDef | undefined {
+function createBaseType(
+  properties: { name: string; type: string }[]
+): TypeDef | undefined {
   if (properties.length === 0) {
     return undefined;
   }
