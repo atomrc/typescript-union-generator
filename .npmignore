@@ -1,0 +1,8 @@
+lib
+public
+docs
+node_modules
+src
+.github
+tsconfig.json
+jest.config.js
