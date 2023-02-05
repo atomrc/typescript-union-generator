@@ -82,18 +82,23 @@ describe("generateUnion", () => {
 
   it("generates named types", () => {
     const type = generateUnion({
-      First: { type: "first", value: 1 },
-      Second: { type: "second" },
-      Third: { type: 3 },
+      UserCreate: {
+        type: "user-create",
+        id: 12,
+        username: "atomrc",
+      },
+      UserDelete: {
+        type: "user-delete",
+        id: 12,
+      },
     });
 
     expect(f(type)).toEqual(
       f(
         `
-    type First = { type: "first", value: number};
-    type Second = { type: "second" };
-    type Third = { type: 3 };
-    type Union = First | Second | Third;
+    type UserCreate = { type: "user-create", id: number, username: string};
+    type UserDelete = { type: "user-delete", id: number };
+    type Union = UserCreate | UserDelete;
     `
       )
     );

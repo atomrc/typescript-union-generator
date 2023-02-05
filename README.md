@@ -5,18 +5,18 @@ Generates TypeScript union types straight from raw payloads ([live demo](https:/
 Transforms this:
 
 ```js
-[
-  { type: "first", value: "two" },
-  { type: "second", val: 1 },
-];
+{
+  First: { type: "first", value: "two" },
+  Second: { type: "second", val: 1 },
+};
 ```
 
 into:
 
 ```ts
-type Type0 = { type: "first"; value: string };
-type Type1 = { type: "second"; val: number };
-type Union = Type0 | Type1;
+type First = { type: "first"; value: string };
+type Second = { type: "second"; val: number };
+type Union = First | Second;
 ```
 
 ## Installation
@@ -32,6 +32,17 @@ To generate a `Union Type` from a bunch of payloads, you can run
 ```js
 import { generateUnion } from "ts-union-generator";
 
+const events = {
+  UserCreate: {
+    type: "user-create",
+    id: 12,
+    username: "atomrc",
+  },
+  UserDelete: {
+    type: "user-delete",
+    id: 12,
+  },
+};
 const types = generateUnion(payloads);
 // ^ your union type and type definitions are in that string
 ```
@@ -44,15 +55,15 @@ If no common property can be found, it will just generate the raw types.
 If needed you can provide the property that should be the discriminant as second parameter:
 
 ```js
-const paylaods = [
-  { value: "val", type: "first" },
-  { value: "tough", type: "second" },
-];
+const payloads = {
+  First: { value: "val", type: "first" },
+  Second: { value: "tough", type: "second" },
+};
 
-const types = generateUnion(payloads, 'type');
+const types = generateUnion(payloads, "type");
 /*
-type Type0 = { value: string, type: "first" };
-type Type1 = { value: string, type: "second" };
-type Union = Type0 | Type1;
+type First = { value: string, type: "first" };
+type Second = { value: string, type: "second" };
+type Union = First | Second;
 */
 ```
