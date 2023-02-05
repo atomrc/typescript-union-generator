@@ -1,6 +1,6 @@
 {
   "name": "tsug",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Generate TypeScript Union Types straight from raw JSON payloads",
   "homepage": "https://github.com/atomrc/typescript-union-generator",
   "repository": "github:atomrc/typescript-union-generator",
