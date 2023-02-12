@@ -68,6 +68,28 @@ type Union = First | Second;
 */
 ```
 
+## Merge multiple payload for the same type
+
+It is possible to provide multiple paylaods for a single type you want to generate. In this case, the payloads will be merged together and optional properties will be infered from them.
+
+```js
+const payloads = {
+  First: [
+    // notice the array for the type First
+    { type: "first", name: "felix", age: 10 },
+    { type: "first", name: "sam" },
+  ],
+  Second: { type: "second", value: "tough" },
+};
+
+const types = generateUnion(payloads);
+/*
+type First = { type: "first", name: string, age?: number };
+type Second = { type: "second", value: string };
+type Union = First | Second;
+*/
+```
+
 ## Extract common properties to a Base type
 
 You might want to extact properties that are common between all the types. In this case you can pass `{ extractCommon: true }` option to the `generateUnion` function

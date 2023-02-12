@@ -1,6 +1,5 @@
-export type TypeEntry = { $$type: string | number | TypeDef };
-export type TypeDef = Record<string, TypeEntry>;
-export type Types = Record<string, { extends?: string; def: TypeDef }>;
+export type Property = { name: string; values: unknown[] };
+export type Type = { name: string; extend?: string; properties: Property[] };
 
 export type Entry = { [key: string]: unknown };
-export type NamedEntries = Record<string, Entry>;
+export type NamedEntries = Record<string, Entry | Entry[]>;
