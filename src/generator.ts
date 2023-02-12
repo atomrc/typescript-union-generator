@@ -1,4 +1,4 @@
-import { TypeEntry, TypeDef, Entry, NamedEntries, Types } from "./types";
+import { Property, Entry, NamedEntries, Type } from "./types";
 
 export type GeneratorOptions = {
   /**
@@ -15,99 +15,73 @@ export type GeneratorOptions = {
   extractCommon?: boolean;
 };
 
-function toType(
-  entry: Entry,
-  excludeProps?: string[],
-  discriminant?: string
-): TypeDef {
-  return Object.entries(entry).reduce<TypeDef>((types, [key, value]) => {
-    let type: TypeEntry;
-    if (excludeProps?.includes(key)) {
-      return types;
-    }
-    if (typeof value === "object" && value) {
-      type = { $$type: toType(value as Entry) };
-    } else {
-      type = {
-        $$type: key === discriminant ? JSON.stringify(value) : typeof value,
-      };
-    }
-    return { ...types, [key]: type };
-  }, {});
-}
-
-function findCommonProperties(
-  payloads: NamedEntries
-): { type: string; name: string }[] {
-  // we just need to check the properties of the first object against all the other objects
-  const entries = Object.values(payloads);
-  const properties = Object.keys(entries[0]);
-  return (
-    properties
-      .map((property) => ({
-        name: property,
-        values: entries
-          .map((entry) => entry[property])
-          .filter((value) => value !== undefined),
-      }))
-      // We filter all the properties that have the same number of values than the number of entries
-      .filter((prop) => prop.values.length === entries.length)
-      .map((prop) => ({ name: prop.name, type: typeof prop.values[0] }))
-  );
-}
-
-function generateTypes(
-  entries: NamedEntries,
-  baseType?: TypeDef,
-  discriminant?: string
-): Types {
-  const types = Object.entries(entries).reduce<Types>(
-    (acc, [name, type]) => ({
-      ...acc,
-      [name]: {
-        def: toType(
-          type,
-          baseType ? Object.keys(baseType) : undefined,
-          discriminant
-        ),
-        extends: baseType ? "Base" : undefined,
-      },
-    }),
-    {}
-  );
+function generateTypes(entries: NamedEntries, extend?: Type): Type[] {
+  const types = Object.entries(entries).map(([name, entry]) => {
+    entry = Array.isArray(entry) ? entry : [entry];
+    return {
+      name,
+      extend: extend?.name,
+      properties: flattenProperties(
+        entry,
+        extend?.properties.map(({ name }) => name)
+      ),
+    };
+  });
 
   return types;
 }
 
-function createBaseType(
-  properties: { name: string; type: string }[]
-): TypeDef | undefined {
-  if (properties.length === 0) {
-    return undefined;
-  }
-  return properties.reduce<TypeDef>(
-    (acc, property) => ({
-      ...acc,
-      [property.name]: { $$type: property.type },
-    }),
-    {}
+function flattenProperties(
+  entries: Entry[],
+  exclude: string[] = []
+): Property[] {
+  const allProperties = Array.from(
+    new Set(
+      entries
+        .flatMap((entry) => Object.keys(entry))
+        .filter((property) => !exclude.includes(property))
+    )
   );
+
+  return allProperties.map((property) => ({
+    name: property,
+    values: entries.map((entry) => entry[property]),
+  }));
+}
+
+function findCommonProperties(properties: Property[]) {
+  return properties.filter((property) => {
+    const types = new Set(property.values.map((value) => typeof value));
+    return types.size === 1;
+  });
 }
 
 export function generate(
-  entries: NamedEntries,
+  payloads: NamedEntries,
   options: GeneratorOptions = {}
-) {
-  const commonProperties = findCommonProperties(entries);
+): { discriminant?: string; base?: Type; types: Type[] } {
+  const entries = Object.values(payloads).flatMap((entry) =>
+    Array.isArray(entry) ? entry : [entry]
+  );
+  const properties = flattenProperties(entries);
+  const commonProperties = findCommonProperties(properties);
   const useDiscriminant = options.discriminant ?? commonProperties[0]?.name;
-  const baseType = options.extractCommon
-    ? createBaseType(
-        commonProperties.filter(({ name }) => name !== useDiscriminant)
-      )
-    : undefined;
 
+  const filteredBaseProperties = commonProperties.filter(
+    ({ name }) => name !== useDiscriminant
+  );
+  const baseType =
+    options.extractCommon && filteredBaseProperties.length > 0
+      ? {
+          name: "Base",
+          properties: filteredBaseProperties,
+        }
+      : undefined;
+
+  const types = generateTypes(payloads, baseType);
   return {
+    discriminant: useDiscriminant,
     base: baseType,
-    types: generateTypes(entries, baseType, useDiscriminant),
+    types: types,
   };
 }

@@ -45,6 +45,7 @@ describe("generateUnion", () => {
   it("generates nested types", () => {
     const type = generateUnion([
       { type: "first", value: 2, data: { test: 1, value: "test" } },
+      { type: "second", value: 2, data: { other: 1 } },
     ]);
 
     expect(f(type)).toEqual(
@@ -55,7 +56,8 @@ describe("generateUnion", () => {
         value: number,
         data: { test: number, value: string }
     };
-    type Union = Type0;
+    type Type1 = { type: "second", value: number, data: {other: number} };
+    type Union = Type0 | Type1;
     `
       )
     );
@@ -65,7 +67,7 @@ describe("generateUnion", () => {
     const type = generateUnion([
       { type: "first", value: 1 },
       { type: "second" },
-      { type: 3 },
+      { type: "third" },
     ]);
 
     expect(f(type)).toEqual(
@@ -73,7 +75,7 @@ describe("generateUnion", () => {
         `
     type Type0 = { type: "first", value: number};
     type Type1 = { type: "second" };
-    type Type2 = { type: 3 };
+    type Type2 = { type: "third" };
     type Union = Type0 | Type1 | Type2;
     `
       )
@@ -109,7 +111,7 @@ describe("generateUnion", () => {
       {
         First: { type: "first", value: 1, common: "one", first: 1 },
         Second: { type: "second", value: 2, common: "two", second: "second" },
-        Third: { type: 3, common: "third" },
+        Third: { type: "third", common: "third" },
       },
       { extractCommon: true }
     );
@@ -119,7 +121,7 @@ describe("generateUnion", () => {
       type Base = {common: string};
       type First = Base & {type: "first", value: number, first: number}
       type Second = Base & {type: "second", value: number, second: string}
-      type Third = Base & {type: 3}
+      type Third = Base & {type: "third"}
       type Union = First | Second | Third
     `)
     );
@@ -130,7 +132,7 @@ describe("generateUnion", () => {
       {
         First: { type: "first", value: 1, first: 1 },
         Second: { type: "second", value: 2, second: "second" },
-        Third: { type: 3 },
+        Third: { type: "third" },
       },
       { extractCommon: true }
     );
@@ -139,8 +141,53 @@ describe("generateUnion", () => {
       f(`
       type First = {type: "first", value: number, first: number}
       type Second = {type: "second", value: number, second: string}
-      type Third = {type: 3}
+      type Third = {type: "third"}
       type Union = First | Second | Third
+    `)
+    );
+  });
+
+  it("does not consider common property if the types differ", () => {
+    const type = generateUnion(
+      {
+        First: { type: "first", value: 1 },
+        Second: { type: "second", value: "hello" },
+      },
+      { extractCommon: true }
+    );
+
+    expect(f(type)).toEqual(
+      f(`
+      type First = {type: "first", value: number}
+      type Second = {type: "second", value: string}
+      type Union = First | Second
+    `)
+    );
+  });
+
+  it("generates any[] for array types", () => {
+    const type = generateUnion({
+      First: [{ type: "first", value: ["hello"] }],
+    });
+
+    expect(f(type)).toEqual(
+      f(`
+      type First = {type: "first", value: any[]}
+    `)
+    );
+  });
+
+  it("merges types when an array is given", () => {
+    const type = generateUnion({
+      First: [
+        { type: "first", value: 1, first: 1 },
+        { type: "first", value: 2 },
+      ],
+    });
+
+    expect(f(type)).toEqual(
+      f(`
+      type First = {type: "first", value: number, first?: number}
     `)
     );
   });
