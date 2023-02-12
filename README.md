@@ -68,25 +68,29 @@ type Union = First | Second;
 */
 ```
 
-## Merge multiple payload for the same type
+## Optional properties detection
 
-It is possible to provide multiple paylaods for a single type you want to generate. In this case, the payloads will be merged together and optional properties will be infered from them.
+If a single payload is given for a particular type you want to generate, then no optional properties can be inferred from it.
+Instead, if you pass an array of payloads for a single type then `tsug` will automatically infer which properties are optional or mandatory. 
+It will also merge the types of a single property together, in case there are multiple types. 
 
 ```js
 const payloads = {
   First: [
     // notice the array for the type First
-    { type: "first", name: "felix", age: 10 },
-    { type: "first", name: "sam" },
+    { type: "first", name: "felix", value: 1, age: 10 },
+    { type: "first", name: "sam", value: "two" },
   ],
-  Second: { type: "second", value: "tough" },
 };
 
 const types = generateUnion(payloads);
 /*
-type First = { type: "first", name: string, age?: number };
-type Second = { type: "second", value: string };
-type Union = First | Second;
+type First = {
+  type: "first",
+  name: string,
+  value: number | string,
+  age?: number
+};
 */
 ```
 
